@@ -59,4 +59,7 @@ class Grid:
                 x = col*self.cell_size+self.x_offset
                 y = row*self.cell_size+self.y_offset
                 cell_rect = pg.Rect(x+1, y+1, self.cell_size-1, self.cell_size-1)
-                pg.draw.rect(screen, cell_color, cell_rect)
+                if (cell_color == colors['white']): # For drawing ghost tetrominos
+                    pg.draw.rect(screen, cell_color, cell_rect, 1)
+                else:
+                    pg.draw.rect(screen, cell_color, cell_rect)

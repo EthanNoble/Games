@@ -42,6 +42,7 @@ setup()
 move_left = False
 move_right = False
 rotate = False
+fully_drop = False
 
 while True:
     for event in pg.event.get():
@@ -54,7 +55,7 @@ while True:
     if (keys[pg.K_w] or keys[pg.K_UP]): # Rotate tetromino
         rotate = True
     elif (keys[pg.K_s] or keys[pg.K_DOWN]): # Drop tetromino
-        pass
+        fully_drop = True
     elif (keys[pg.K_a] or keys[pg.K_LEFT]):
         move_left = True
     elif (keys[pg.K_d] or keys[pg.K_RIGHT]):
@@ -68,7 +69,7 @@ while True:
     if time_now - time > time_steps:
         time = time_now
 
-        tetris_board.drop_falling_tetromino(grid())
+        tetris_board.drop_tetromino(grid(), tetris_board.falling_tetromino)
     
     # Update move commands
     if time_now - move_time > move_time_steps:
@@ -76,6 +77,9 @@ while True:
         if (rotate):
             tetris_board.rotate(grid())
             rotate = False
+        if (fully_drop):
+            tetris_board.fully_drop(grid())
+            fully_drop = False
         if (move_left):
             tetris_board.maneuver_falling_tetromino(grid(), 'left')
             move_left = False
@@ -84,6 +88,8 @@ while True:
             move_right = False
 
     # Draw game objects
+    tetris_board.generate_ghost_tetromino(grid())
+    tetris_board.ghost_tetromino.put(grid(), screen)
     tetris_board.falling_tetromino.put(grid(), screen)
     grid.draw(screen())
 
