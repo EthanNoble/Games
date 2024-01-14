@@ -12,6 +12,14 @@ class TetrisBoard:
     def new_tetromino(self):
         self.falling_tetromino = Tetromino(['cyan', 'orange', 'light green', 'pink', 'yellow'], 4, 5)
     
+    def rotate(self, grid):
+        print('rotate')
+        # Set current tetromino blocks to black
+        self.clear_tetromino(grid)
+        self.falling_tetromino.shape_index += 5
+        self.falling_tetromino.coordinates = self.falling_tetromino.shapes[self.falling_tetromino.shape_index%10]
+
+
     def maneuver_falling_tetromino(self, grid, direction):
         if self.can_manuever_tetromino(grid, direction):
             if direction == 'left':
@@ -82,11 +90,18 @@ class TetrisBoard:
 
 class Tetromino:
     shapes = [
+        # NORMAL
         [(0,0),(0,1),(0,2),(1,1)],  # T
         [(0,0),(1,0),(2,0),(2,1)],  # L
         [(0,0),(0,1),(1,1),(1,2)],  # Skew
         [(0,1),(1,1),(0,0),(1,0)],  # Square
-        [(0,3),(0,2),(0,1),(0,0)]   # Straight
+        [(0,3),(0,2),(0,1),(0,0)],  # Straight
+        # ROTATED
+        [(0,0),(1,0),(2,0),(1,1)],  # T
+        [(0,0),(0,1),(0,2),(1,2)],  # L
+        [(0,0),(1,0),(1,1),(2,1)],  # Skew
+        [(1,0),(1,1),(0,0),(0,1)],  # Square
+        [(3,0),(2,0),(1,0),(0,0)], # Straight
     ]
 
     def __init__(self, color, row, col, shape='random'):
@@ -94,10 +109,12 @@ class Tetromino:
         self.row = row
         self.col = col
 
+        self.shape_index = randint(0, len(self.shapes)-1)
         if shape == 'random':
-            self.coordinates = self.shapes[randint(0, len(self.shapes)-1)]
+            self.coordinates = self.shapes[self.shape_index]
         else:
             self.coordinates = self.shapes[shape]
+            self.shape_index = shape
 
     def put(self, grid, screen):
         for coord in self.coordinates:

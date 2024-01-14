@@ -6,7 +6,7 @@ from tetris_objects import TetrisBoard
 from random import randint
 from variables import colors
 
-WIDTH = 600
+WIDTH = 650
 HEIGHT = 660
 
 # game setup
@@ -41,6 +41,7 @@ setup()
 
 move_left = False
 move_right = False
+rotate = False
 
 while True:
     for event in pg.event.get():
@@ -50,9 +51,9 @@ while True:
     # Get user wasd and arrow key input
     keys = pg.key.get_pressed()
 
-    if (keys[pg.K_w] or keys[pg.K_UP]):
-        pass
-    elif (keys[pg.K_s] or keys[pg.K_DOWN]):
+    if (keys[pg.K_w] or keys[pg.K_UP]): # Rotate tetromino
+        rotate = True
+    elif (keys[pg.K_s] or keys[pg.K_DOWN]): # Drop tetromino
         pass
     elif (keys[pg.K_a] or keys[pg.K_LEFT]):
         move_left = True
@@ -72,6 +73,9 @@ while True:
     # Update move commands
     if time_now - move_time > move_time_steps:
         move_time = time_now
+        if (rotate):
+            tetris_board.rotate(grid())
+            rotate = False
         if (move_left):
             tetris_board.maneuver_falling_tetromino(grid(), 'left')
             move_left = False
@@ -86,7 +90,7 @@ while True:
     # Flip() display to update screen
     screen.flip()
     # Clear text
-    # screen().fill(colors['black'])
+    screen().fill(colors['black'])
 
     # Limit FPS to 60
     screen.time_step(60)
