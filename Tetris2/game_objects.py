@@ -30,22 +30,27 @@ class Tetromino: # Collection of block sprites, not a sprite itself
             block.rect.x += relative_positions[i][0] * block.size
             block.rect.y += relative_positions[i][1] * block.size
 
-    def update(self, border_group, stable_tetrominos): # Check for collisions and update tetromino blocks
+    def update(self, floor_group, stable_tetrominos): # Check for collisions and update tetromino blocks
         # Check if tetromino collided with border or stable tetrominos
-        if not self.__collided_with_border(border_group) and not self.__collided_with_tetrominos(stable_tetrominos):
+        if (not self.__collided_with_group(floor_group, y=-1) and
+            not self.__collided_with_group(stable_tetrominos, y=-1)):
             self.block_group.update()
             return False
         return True # Tetromino collided with border, return True to indicate that it should be added to stable tetrominos
 
-    def move_blocks_by(self, x): # Move all blocks in tetromino by x
-        for block in self.block_group.sprites():
-            block.rect.x += x * block.size
+    def move_blocks_by(self, x, wall_group, stable_tetrominos): # Move all blocks horizontally in tetromino by x
+        if (not self.__collided_with_group(wall_group, x=-1*x) and
+            not self.__collided_with_group(stable_tetrominos, x=-1*x)):
+            for block in self.block_group.sprites():
+                block.rect.x += x * block.size
     
-    def __collided_with_border(self, border_group):
-        return len(pg.sprite.groupcollide(self.block_group, border_group, False, False)) > 0
-    
-    def __collided_with_tetrominos(self, stable_tetrominos):
-        return len(pg.sprite.groupcollide(self.block_group, stable_tetrominos, False, False)) > 0
+    def __collided_with_group(self, group, x=0, y=0):
+        # Hacky way to get collision detection to work
+        self.block_group.update(direction_x=-1*x, direction_y=-1*y) # Move to check for collision
+        collided = len(pg.sprite.groupcollide(self.block_group, group, False, False)) > 0
+        self.block_group.update(direction_x=x, direction_y=y) # Move back to original position
+
+        return collided
 
 
 class Block(pg.sprite.Sprite):
@@ -74,5 +79,6 @@ class FallingBlock(Block):
         Block.__init__(self, size, x, y, color, alpha, border_width)
         # self.rect.height += 1 # Make block 1 pixel taller downwards to allow for proper collision detection
 
-    def update(self):
-        self.rect.y += self.size
+    def update(self, direction_x=0, direction_y=1):
+        self.rect.x += direction_x*self.size
+        self.rect.y += direction_y*self.size

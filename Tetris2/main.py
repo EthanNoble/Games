@@ -17,17 +17,23 @@ CELL_SIZE = 30
 
 
 def borders():
-    group = pg.sprite.RenderUpdates()
+    floor_border = pg.sprite.RenderUpdates()
+    ceiling_border = pg.sprite.RenderUpdates()
+    wall_border = pg.sprite.RenderUpdates()
+
     for y in range(GRID_HEIGHT):
         for x in range(GRID_WIDTH):
-            if (x is not 0 and
-                x is not GRID_WIDTH-1 and
-                y is not 0 and
-                y is not GRID_HEIGHT-1):
-                continue # Skip if not edge of grid
-            block = StableBlock(CELL_SIZE, x*CELL_SIZE, y*CELL_SIZE, c['grey'])
-            group.add(block)
-    return group
+            if y == GRID_HEIGHT-1: # Floor
+                block = StableBlock(CELL_SIZE, x*CELL_SIZE, y*CELL_SIZE, c['grey'])
+                floor_border.add(block)
+            elif y == 0: # Ceiling
+                block = StableBlock(CELL_SIZE, x*CELL_SIZE, y*CELL_SIZE, c['grey'])
+                ceiling_border.add(block)
+            elif x == 0 or x == GRID_WIDTH-1: # Walls
+                block = StableBlock(CELL_SIZE, x*CELL_SIZE, y*CELL_SIZE, c['grey'])
+                wall_border.add(block)
+
+    return floor_border, ceiling_border, wall_border
 
 
 def main():
@@ -44,7 +50,7 @@ def main():
     pg.display.flip()
 
     # Game objects including sprites and groups
-    border_group = borders()
+    floor_group, ceiling_group, wall_group = borders()
     falling_x = (GRID_WIDTH//2) * CELL_SIZE
     falling_y = 1 * CELL_SIZE
     falling_tetromino = Tetromino(CELL_SIZE, falling_x, falling_y)
@@ -62,29 +68,34 @@ def main():
             if event.type == pg.QUIT:
                 running = False
             elif event.type == pg.KEYDOWN and event.key == pg.K_LEFT:
-                falling_tetromino.move_blocks_by(-1)
+                falling_tetromino.move_blocks_by(-1, wall_group, stable_tetrominos)
             elif event.type == pg.KEYDOWN and event.key == pg.K_RIGHT:
-                falling_tetromino.move_blocks_by(1)
+                falling_tetromino.move_blocks_by(1, wall_group, stable_tetrominos)
             elif event.type == pg.KEYDOWN and event.key == pg.K_UP:
-                print('up')
+                print('rotate')
             elif event.type == pg.KEYDOWN and event.key == pg.K_DOWN:
-                print('down')
+                while not falling_tetromino.update(floor_group, stable_tetrominos):
+                    pass
         
         # UPDATE ALL SPRITES HERE
         time_now = pg.time.get_ticks()
         if time_now - time > time_steps:
             time = time_now
-            if falling_tetromino.update(border_group, stable_tetrominos):
+            if falling_tetromino.update(floor_group, stable_tetrominos):
                 # If we get here, the falling tetromino collided with the border
                 # and we add falling tetromino to stable tetrominos and create new
                 # falling tetromino
                 stable_tetrominos.add(falling_tetromino.block_group)
                 falling_tetromino = Tetromino(CELL_SIZE, falling_x, falling_y)
 
-        border_group.update()
+        floor_group.update()
+        ceiling_group.update()
+        wall_group.update()
                 
         screen.blit(background, (0, 0))
-        border_group.draw(screen)
+        floor_group.draw(screen)
+        ceiling_group.draw(screen)
+        wall_group.draw(screen)
         falling_tetromino.block_group.draw(screen)
         # ghost_tetromino.block_group.draw(screen)
         stable_tetrominos.draw(screen)
