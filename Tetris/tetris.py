@@ -34,8 +34,8 @@ def setup():
     screen = Screen(WIDTH, HEIGHT, color=colors['black'])
     grid = Grid(rows=grid_rows, cols=grid_cols, cell_size=30, custom_grid=tetris_grid)
 
-    time, time_steps = 0, 350
-    move_time, move_time_steps = 0, 200
+    time, time_steps = 0, 350 # Controls tetromino drop speed
+    move_time, move_time_steps = 0, 80 # Controls left/right movement speed
 
 setup()
 
@@ -91,6 +91,7 @@ while True:
     tetris_board.generate_ghost_tetromino(grid())
     tetris_board.ghost_tetromino.put(grid(), screen)
     tetris_board.falling_tetromino.put(grid(), screen)
+
     grid.draw(screen())
 
     # Flip() display to update screen

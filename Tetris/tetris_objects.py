@@ -14,7 +14,6 @@ class TetrisBoard:
         self.falling_tetromino = Tetromino(['cyan', 'orange', 'light green', 'pink', 'yellow'], 4, 5)
     
     def rotate(self, grid):
-        print('rotate')
         if (self.can_drop_tetromino(grid) and
             self.can_manuever_tetromino(grid, 'left') and
             self.can_manuever_tetromino(grid, 'right')):
@@ -42,7 +41,6 @@ class TetrisBoard:
         for coord in self.falling_tetromino.coordinates:
             if ((coord[0] + self.falling_tetromino.col <= 1 and direction == 'left') or
                 (coord[1] + self.falling_tetromino.col >= len(grid[0])-2 and direction == 'right')):
-                print(coord[0] + self.falling_tetromino.col, '', coord[1] + self.falling_tetromino.col)
                 return False
         
         # Check collision with side of stable tetrominos
@@ -150,7 +148,6 @@ class Tetromino:
         if shape == 'random':
             self.coordinates = self.shapes[self.shape_index]
         else:
-            print(shape)
             self.coordinates = self.shapes[shape]
             self.shape_index = shape
 
