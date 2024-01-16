@@ -27,14 +27,32 @@ class Tetromino: # Collection of block sprites, not a sprite itself
 
         # Add relative positions to the blocks absolute x and y positions
         for i, block in enumerate(self.block_group.sprites()):
-            block.rect.x += relative_positions[i][0] * block.rect.width
-            block.rect.y += relative_positions[i][1] * block.rect.height
+            block.rect.x += relative_positions[i][0] * block.size
+            block.rect.y += relative_positions[i][1] * block.size
+
+    def update(self, border_group, stable_tetrominos): # Check for collisions and update tetromino blocks
+        # Check if tetromino collided with border or stable tetrominos
+        if not self.__collided_with_border(border_group) and not self.__collided_with_tetrominos(stable_tetrominos):
+            self.block_group.update()
+            return False
+        return True # Tetromino collided with border, return True to indicate that it should be added to stable tetrominos
+
+    def move_blocks_by(self, x): # Move all blocks in tetromino by x
+        for block in self.block_group.sprites():
+            block.rect.x += x * block.size
+    
+    def __collided_with_border(self, border_group):
+        return len(pg.sprite.groupcollide(self.block_group, border_group, False, False)) > 0
+    
+    def __collided_with_tetrominos(self, stable_tetrominos):
+        return len(pg.sprite.groupcollide(self.block_group, stable_tetrominos, False, False)) > 0
 
 
 class Block(pg.sprite.Sprite):
     def __init__(self, size, x, y, color, alpha=255, border_width=0): # border_width = 0 -> no border & filled block
         pg.sprite.Sprite.__init__(self)
 
+        self.size = size
         self.image = pg.Surface([size, size])
         self.image.set_alpha(alpha)
         self.image.fill(color)
@@ -54,6 +72,7 @@ class StableBlock(Block):
 class FallingBlock(Block):
     def __init__(self, size, x, y, color, alpha=255, border_width=0):
         Block.__init__(self, size, x, y, color, alpha, border_width)
+        # self.rect.height += 1 # Make block 1 pixel taller downwards to allow for proper collision detection
 
     def update(self):
-        self.rect.y += self.rect.height
+        self.rect.y += self.size
