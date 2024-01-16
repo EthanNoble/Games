@@ -1,5 +1,5 @@
 import pygame as pg
-from game_objects import Block
+from game_objects import StableBlock
 from game_objects import Tetromino
 from variables import colors as c
 
@@ -20,7 +20,7 @@ def borders():
                 y is not 0 and
                 y is not GRID_HEIGHT-1):
                 continue # Skip if not edge of grid
-            block = Block(CELL_SIZE, x*CELL_SIZE, y*CELL_SIZE, c['grey'])
+            block = StableBlock(CELL_SIZE, x*CELL_SIZE, y*CELL_SIZE, c['grey'])
             group.add(block)
     return group
 
@@ -44,6 +44,7 @@ def main():
     falling_y = 1 * CELL_SIZE
     falling_tetromino = Tetromino(CELL_SIZE, falling_x, falling_y)
     clock = pg.time.Clock()
+    time, time_steps = 0, 350 # Controls tetromino drop speed
 
     running = True
     while running:
@@ -55,8 +56,11 @@ def main():
                 running = False
         
         # UPDATE ALL SPRITES HERE
+        time_now = pg.time.get_ticks()
+        if time_now - time > time_steps:
+            time = time_now
+            falling_tetromino.block_group.update()
         border_group.update()
-        falling_tetromino.block_group.update()
                 
         screen.blit(background, (0, 0))
         # DRAW ALL SPRITES HERE

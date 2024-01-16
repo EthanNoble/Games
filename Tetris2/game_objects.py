@@ -11,7 +11,7 @@ class Tetromino: # Collection of block sprites, not a sprite itself
         color = choice(tetromino_colors)
 
         # Create 4 blocks for tetromino
-        blocks = [Block(block_size, x, y, color, alpha, border_width) for _ in range(4)]
+        blocks = [FallingBlock(block_size, x, y, color, alpha, border_width) for _ in range(4)]
         self.block_group = pg.sprite.RenderUpdates(blocks)
 
         # Select random tetromino type
@@ -31,8 +31,6 @@ class Tetromino: # Collection of block sprites, not a sprite itself
             block.rect.y += relative_positions[i][1] * block.rect.height
 
 
-
-
 class Block(pg.sprite.Sprite):
     def __init__(self, size, x, y, color, alpha=255, border_width=0): # border_width = 0 -> no border & filled block
         pg.sprite.Sprite.__init__(self)
@@ -45,3 +43,17 @@ class Block(pg.sprite.Sprite):
         self.rect = self.image.get_rect()
         self.rect.x = x
         self.rect.y = y
+
+class StableBlock(Block):
+    def __init__(self, size, x, y, color, alpha=255, border_width=0):
+        Block.__init__(self, size, x, y, color, alpha, border_width)
+
+    def update(self):
+        pass
+
+class FallingBlock(Block):
+    def __init__(self, size, x, y, color, alpha=255, border_width=0):
+        Block.__init__(self, size, x, y, color, alpha, border_width)
+
+    def update(self):
+        self.rect.y += self.rect.height
