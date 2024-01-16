@@ -54,10 +54,10 @@ def main():
     falling_x = (GRID_WIDTH//2) * CELL_SIZE
     falling_y = 1 * CELL_SIZE
     falling_tetromino = Tetromino(CELL_SIZE, falling_x, falling_y)
-    # ghost_tetromino = Tetromino(CELL_SIZE, falling_x, falling_y, alpha=50)
     stable_tetrominos = pg.sprite.RenderUpdates()
     clock = pg.time.Clock()
     time, time_steps = 0, 350 # Controls tetromino drop speed
+
 
     running = True
     while running:
@@ -72,7 +72,7 @@ def main():
             elif event.type == pg.KEYDOWN and event.key == pg.K_RIGHT:
                 falling_tetromino.move_blocks_by(1, wall_group, stable_tetrominos)
             elif event.type == pg.KEYDOWN and event.key == pg.K_UP:
-                print('rotate')
+                falling_tetromino.rotate_blocks(wall_group, stable_tetrominos)
             elif event.type == pg.KEYDOWN and event.key == pg.K_DOWN:
                 while not falling_tetromino.update(floor_group, stable_tetrominos):
                     pass
@@ -97,7 +97,6 @@ def main():
         ceiling_group.draw(screen)
         wall_group.draw(screen)
         falling_tetromino.block_group.draw(screen)
-        # ghost_tetromino.block_group.draw(screen)
         stable_tetrominos.draw(screen)
 
         pg.display.flip()

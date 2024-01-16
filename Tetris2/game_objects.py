@@ -5,24 +5,28 @@ from random import choice
 
 
 class Tetromino: # Collection of block sprites, not a sprite itself
-    def __init__(self, block_size, x, y, alpha=255, border_width=0):
+    def __init__(self, block_size, x, y, type=None, color=None, alpha=255, border_width=0):
         # Random tetromino color
         tetromino_colors = [c['cyan'], c['orange'], c['light green'], c['yellow'], c['pink']]
-        color = choice(tetromino_colors)
+        self.color = choice(tetromino_colors) if color is None else color
 
         # Create 4 blocks for tetromino
-        blocks = [FallingBlock(block_size, x, y, color, alpha, border_width) for _ in range(4)]
+        self.block_size = block_size
+        self.x = x
+        self.y = y
+        self.alpha = alpha
+        blocks = [FallingBlock(block_size, x, y, self.color, alpha, border_width) for _ in range(4)]
         self.block_group = pg.sprite.RenderUpdates(blocks)
 
         # Select random tetromino type
-        self.__type = choice(list(tetrominos.values()))
+        self.type = choice(list(tetrominos.values())) if type is None else type
         self.__position_blocks()
     
     def __position_blocks(self): # Position blocks according to tetromino type
         relative_positions = [] # Relative positions of blocks in tetromino
-        for y in range(len(self.__type)):
-            for x in range(len(self.__type[y])):
-                if self.__type[y][x] is 1:
+        for y in range(len(self.type)):
+            for x in range(len(self.type[y])):
+                if self.type[y][x] is 1:
                     relative_positions.append((x, y))
 
         # Add relative positions to the blocks absolute x and y positions
@@ -43,6 +47,13 @@ class Tetromino: # Collection of block sprites, not a sprite itself
             not self.__collided_with_group(stable_tetrominos, x=-1*x)):
             for block in self.block_group.sprites():
                 block.rect.x += x * block.size
+    
+    def rotate_blocks(self, wall_group, stable_tetrominos): # Rotate all blocks in tetromino
+        for block in self.block_group.sprites():
+            x_temp = block.rect.x
+            block.rect.x = block.rect.y
+            block.rect.y = x_temp
+
     
     def __collided_with_group(self, group, x=0, y=0):
         # Hacky way to get collision detection to work
