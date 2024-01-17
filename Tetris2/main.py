@@ -5,8 +5,7 @@ from variables import colors as c
 
 
 ## TODO:
-# 1. Separate border blocks into separate ceiling, floor, and wall groups each with distinct collision behavior
-# 2. Figure out how to use collision detection with one step in the future
+
 
 
 WIDTH = 650

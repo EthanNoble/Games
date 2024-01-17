@@ -2,6 +2,8 @@ import pygame as pg
 from variables import colors as c
 from variables import tetrominos
 from random import choice
+import numpy as np
+
 
 
 class Tetromino: # Collection of block sprites, not a sprite itself
@@ -31,13 +33,18 @@ class Tetromino: # Collection of block sprites, not a sprite itself
 
         # Add relative positions to the blocks absolute x and y positions
         for i, block in enumerate(self.block_group.sprites()):
+            block.rect.x = self.x
+            block.rect.y = self.y
+            # print(self.x, ', ', self.y, sep='')
             block.rect.x += relative_positions[i][0] * block.size
             block.rect.y += relative_positions[i][1] * block.size
+        print()
 
     def update(self, floor_group, stable_tetrominos): # Check for collisions and update tetromino blocks
         # Check if tetromino collided with border or stable tetrominos
         if (not self.__collided_with_group(floor_group, y=-1) and
             not self.__collided_with_group(stable_tetrominos, y=-1)):
+            self.y += self.block_size # Update vertical tetromino position
             self.block_group.update()
             return False
         return True # Tetromino collided with border, return True to indicate that it should be added to stable tetrominos
@@ -45,16 +52,21 @@ class Tetromino: # Collection of block sprites, not a sprite itself
     def move_blocks_by(self, x, wall_group, stable_tetrominos): # Move all blocks horizontally in tetromino by x
         if (not self.__collided_with_group(wall_group, x=-1*x) and
             not self.__collided_with_group(stable_tetrominos, x=-1*x)):
+            self.x += x * self.block_size # Update horizontal tetromino position
             for block in self.block_group.sprites():
                 block.rect.x += x * block.size
     
     def rotate_blocks(self, wall_group, stable_tetrominos): # Rotate all blocks in tetromino
-        for block in self.block_group.sprites():
-            x_temp = block.rect.x
-            block.rect.x = block.rect.y
-            block.rect.y = x_temp
+        relative_positions = np.array(self.type)
 
-    
+        # Rotate relative positions (transpose and flip horizontally)
+        rotated_relative_positions = relative_positions.T
+        # Horizontal flip here
+        self.type = rotated_relative_positions.tolist()
+
+        # Repositon rotated blocks
+        self.__position_blocks()
+
     def __collided_with_group(self, group, x=0, y=0):
         # Hacky way to get collision detection to work
         self.block_group.update(direction_x=-1*x, direction_y=-1*y) # Move to check for collision
