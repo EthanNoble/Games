@@ -28,7 +28,7 @@ class Tetromino: # Collection of block sprites, not a sprite itself
         relative_positions = [] # Relative positions of blocks in tetromino
         for y in range(len(self.type)):
             for x in range(len(self.type[y])):
-                if self.type[y][x] is 1:
+                if self.type[y][x] == 1:
                     relative_positions.append((x, y))
 
         # Add relative positions to the blocks absolute x and y positions
@@ -61,11 +61,21 @@ class Tetromino: # Collection of block sprites, not a sprite itself
 
         # Rotate relative positions (transpose and flip horizontally)
         rotated_relative_positions = relative_positions.T
-        # Horizontal flip here
+        rotated_relative_positions = np.fliplr(rotated_relative_positions)
+        # rotated_relative_positions = np.fliplr(rotated_relative_positions)
+        # rotated_relative_positions = rotated_relative_positions.T
         self.type = rotated_relative_positions.tolist()
-
-        # Repositon rotated blocks
         self.__position_blocks()
+
+        # If rotated tetromino collides with wall or stable tetrominos, rotate back
+        if (self.__collided_with_group(wall_group) or
+            self.__collided_with_group(stable_tetrominos)):
+            # Reverse what we just did
+            rotated_relative_positions = np.fliplr(rotated_relative_positions)
+            rotated_relative_positions = rotated_relative_positions.T
+            self.type = rotated_relative_positions.tolist()
+            self.__position_blocks()
+
 
     def __collided_with_group(self, group, x=0, y=0):
         # Hacky way to get collision detection to work
