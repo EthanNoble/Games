@@ -26,7 +26,7 @@ class Tetromino: # Collection of block sprites, not a sprite itself
 
         # self.key = 'T'
         # self.shape = tetrominos[self.key][0]
-        # self.__position_blocks()
+        self.__position_blocks()
     
     def __position_blocks(self): # Position blocks according to tetromino type
         relative_positions = [] # Relative positions of blocks in tetromino
