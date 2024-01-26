@@ -14,6 +14,8 @@ GRID_WIDTH = 12
 GRID_HEIGHT = 22
 CELL_SIZE = 30
 
+INSTANT_DROP = False
+
 
 def borders():
     floor_border = pg.sprite.RenderUpdates()
@@ -61,7 +63,7 @@ def main():
     running = True
     while running:
         clock.tick(60)
-
+        
         # Input queue
         for event in pg.event.get():
             if event.type == pg.QUIT:
@@ -73,8 +75,11 @@ def main():
             elif event.type == pg.KEYDOWN and event.key == pg.K_UP:
                 falling_tetromino.rotate_blocks(wall_group, stable_tetrominos)
             elif event.type == pg.KEYDOWN and event.key == pg.K_DOWN:
-                while not falling_tetromino.update(floor_group, stable_tetrominos):
-                    pass
+                if INSTANT_DROP:
+                    while not falling_tetromino.update(floor_group, stable_tetrominos):
+                        pass
+                else:
+                    falling_tetromino.update(floor_group, stable_tetrominos)
         
         # UPDATE ALL SPRITES HERE
         time_now = pg.time.get_ticks()
