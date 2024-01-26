@@ -14,7 +14,7 @@ INSTANT_DROP = False
 
 # Next tetromino shape position
 NEXT_X = 400
-NEXT_Y = 50
+NEXT_Y = 30
 
 
 def borders():
@@ -59,7 +59,7 @@ def main():
     falling_x = (GRID_WIDTH//2) * CELL_SIZE
     falling_y = 1 * CELL_SIZE
     falling_tetromino = Tetromino(CELL_SIZE, falling_x, falling_y)
-    next_tetromino = Tetromino(CELL_SIZE, NEXT_X, NEXT_Y)
+    next_tetromino = Tetromino(CELL_SIZE, NEXT_X, NEXT_Y, next_render=True)
     stable_tetrominos = StableTetrominoGroup()
     clock = pg.time.Clock()
     time, time_steps = 0, 350 # Controls tetromino drop speed
@@ -108,7 +108,7 @@ def main():
                     type=next_tetromino.key, # Insert next tetromino type
                     color=next_tetromino.color
                 )
-                next_tetromino = Tetromino(CELL_SIZE, NEXT_X, NEXT_Y) # Create new next tetromino
+                next_tetromino = Tetromino(CELL_SIZE, NEXT_X, NEXT_Y, next_render=True) # Create new next tetromino
 
         floor_group.update()
         ceiling_group.update()

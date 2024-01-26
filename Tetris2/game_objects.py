@@ -6,7 +6,7 @@ import numpy as np
 
 
 class Tetromino: # Collection of block sprites, not a sprite itself
-    def __init__(self, block_size, x, y, type=None, color=None, alpha=255):
+    def __init__(self, block_size, x, y, type=None, color=None, alpha=255, next_render=False):
         # Random tetromino color
         tetromino_colors = list(c.values())[4:]
         self.color = choice(tetromino_colors) if color is None else color
@@ -22,7 +22,10 @@ class Tetromino: # Collection of block sprites, not a sprite itself
         # Select random tetromino type
         self.current_shape = 0 # On rotation, this will be incremented and applied modulo
         self.key = choice(list(tetrominos.keys())) if type is None else type
-        self.shape = tetrominos[self.key][0] # Grab first unrotated tetromino
+        # If rendering next tetromino, use second shape for I tetromino
+        shape_index = 1 if next_render and self.key == 'I' else 0
+        self.shape = tetrominos[self.key][shape_index] # Grab first unrotated tetromino
+
 
         # self.key = 'T'
         # self.shape = tetrominos[self.key][0]
