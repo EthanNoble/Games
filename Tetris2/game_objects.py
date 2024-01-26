@@ -132,3 +132,40 @@ class FallingBlock(Block):
     def update(self, direction_x=0, direction_y=1):
         self.rect.x += direction_x*self.size
         self.rect.y += direction_y*self.size
+
+# Group of all stable tetrominos. Used to check for completed lines
+class StableTetrominoGroup:
+    def __init__(self):
+        self.tetromino_group = pg.sprite.RenderUpdates()
+
+    def add(self, tetromino):
+        self.tetromino_group.add(tetromino.block_group)
+    
+    def __remove_line(self, y):
+        # Remove all blocks in completed line
+        for block in self.tetromino_group:
+            if (block.rect.y == y):
+                block.kill()
+        # Update positions of all blocks above completed line
+        for block in self.tetromino_group:
+            if (block.rect.y < y):
+                block.update()
+
+    def check_lines(self):
+        grid_lines = []
+        # Generate grid coordinates
+        for y in range(30, 601, 30):
+            line = []
+            for x in range(30, 301, 30):
+                line.append((x, y))
+            grid_lines.append(line)
+        
+        # Check for completed lines
+        filled_blocks = 0
+        for y in range(30, 601, 30): # Loop through each block line by line
+            for block in self.tetromino_group:
+                if (block.rect.y == y):
+                    filled_blocks += 1
+            if filled_blocks == 10:
+                self.__remove_line(y)
+            filled_blocks = 0

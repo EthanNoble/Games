@@ -1,4 +1,5 @@
 import pygame as pg
+from game_objects import StableTetrominoGroup
 from game_objects import StableBlock
 from game_objects import Tetromino
 from variables import colors as c
@@ -14,7 +15,7 @@ GRID_WIDTH = 12
 GRID_HEIGHT = 22
 CELL_SIZE = 30
 
-INSTANT_DROP = False
+INSTANT_DROP = True
 
 
 def borders():
@@ -55,7 +56,7 @@ def main():
     falling_x = (GRID_WIDTH//2) * CELL_SIZE
     falling_y = 1 * CELL_SIZE
     falling_tetromino = Tetromino(CELL_SIZE, falling_x, falling_y)
-    stable_tetrominos = pg.sprite.RenderUpdates()
+    stable_tetrominos = StableTetrominoGroup()
     clock = pg.time.Clock()
     time, time_steps = 0, 350 # Controls tetromino drop speed
 
@@ -71,31 +72,32 @@ def main():
             if event.type == pg.QUIT:
                 running = False
             # Rotate tetromino
-            if event.type == pg.KEYDOWN and (keys[pg.K_w] or keys[pg.K_UP]):
-                falling_tetromino.rotate_blocks(wall_group, stable_tetrominos)
+            if keys[pg.K_UP]:
+                falling_tetromino.rotate_blocks(wall_group, stable_tetrominos.tetromino_group)
             # Player initiated instant drop
-            elif INSTANT_DROP and (keys[pg.K_s] or keys[pg.K_DOWN]):
-                while not falling_tetromino.update(floor_group, stable_tetrominos): pass
+            elif INSTANT_DROP and keys[pg.K_DOWN]:
+                while not falling_tetromino.update(floor_group, stable_tetrominos.tetromino_group): pass
 
         # Player initiated gradual drop
-        if not INSTANT_DROP and (event.type == pg.KEYDOWN and (keys[pg.K_s] or keys[pg.K_DOWN])):
-            falling_tetromino.update(floor_group, stable_tetrominos)
+        if not INSTANT_DROP and keys[pg.K_DOWN]:
+            falling_tetromino.update(floor_group, stable_tetrominos.tetromino_group)
         
         # Move left/right
         if control % player_control_speed == 0:
-            if keys[pg.K_a] or keys[pg.K_LEFT]:
-                falling_tetromino.move_blocks_by(-1, wall_group, stable_tetrominos)
-            elif keys[pg.K_d] or keys[pg.K_RIGHT]:
-                falling_tetromino.move_blocks_by(1, wall_group, stable_tetrominos)
+            if keys[pg.K_LEFT]:
+                falling_tetromino.move_blocks_by(-1, wall_group, stable_tetrominos.tetromino_group)
+            elif keys[pg.K_RIGHT]:
+                falling_tetromino.move_blocks_by(1, wall_group, stable_tetrominos.tetromino_group)
         
         time_now = pg.time.get_ticks()
         if time_now - time > time_steps:
             time = time_now
-            if falling_tetromino.update(floor_group, stable_tetrominos):
+            if falling_tetromino.update(floor_group, stable_tetrominos.tetromino_group):
                 # If we get here, the falling tetromino collided with the floor or
                 # stable tetrominos and we add falling tetromino to stable tetrominos
                 # and create new falling tetromino
-                stable_tetrominos.add(falling_tetromino.block_group)
+                stable_tetrominos.add(falling_tetromino)
+                stable_tetrominos.check_lines()
                 falling_tetromino = Tetromino(CELL_SIZE, falling_x, falling_y)
 
         floor_group.update()
@@ -107,7 +109,7 @@ def main():
         ceiling_group.draw(screen)
         wall_group.draw(screen)
         falling_tetromino.block_group.draw(screen)
-        stable_tetrominos.draw(screen)
+        stable_tetrominos.tetromino_group.draw(screen)
 
         pg.display.flip()
 
