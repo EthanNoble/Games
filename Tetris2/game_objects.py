@@ -6,7 +6,7 @@ import numpy as np
 
 
 class Tetromino: # Collection of block sprites, not a sprite itself
-    def __init__(self, block_size, x, y, type=None, color=None, alpha=255, border_width=0):
+    def __init__(self, block_size, x, y, type=None, color=None, alpha=255):
         # Random tetromino color
         tetromino_colors = list(c.values())[:8]
         self.color = choice(tetromino_colors) if color is None else color
@@ -16,7 +16,7 @@ class Tetromino: # Collection of block sprites, not a sprite itself
         self.x = x
         self.y = y
         self.alpha = alpha
-        blocks = [FallingBlock(block_size, x, y, self.color, alpha, border_width) for _ in range(4)]
+        blocks = [FallingBlock(block_size, x, y, self.color, alpha) for _ in range(4)]
         self.block_group = pg.sprite.RenderUpdates(blocks)
 
         # Select random tetromino type
@@ -104,11 +104,11 @@ class Tetromino: # Collection of block sprites, not a sprite itself
 
 
 class Block(pg.sprite.Sprite):
-    def __init__(self, size, x, y, color, alpha=255, border_width=0): # border_width = 0 -> no border & filled block
+    def __init__(self, size, x, y, color, alpha, border_width): # border_width = 0 -> no border & filled block
         pg.sprite.Sprite.__init__(self)
 
         self.size = size
-        self.image = pg.Surface([size, size])
+        self.image = pg.Surface([size-border_width, size-border_width])
         self.image.set_alpha(alpha)
         self.image.fill(color)
 
@@ -118,14 +118,14 @@ class Block(pg.sprite.Sprite):
         self.rect.y = y
 
 class StableBlock(Block):
-    def __init__(self, size, x, y, color, alpha=255, border_width=0):
+    def __init__(self, size, x, y, color, alpha=255, border_width=1):
         Block.__init__(self, size, x, y, color, alpha, border_width)
 
     def update(self):
         pass
 
 class FallingBlock(Block):
-    def __init__(self, size, x, y, color, alpha=255, border_width=0):
+    def __init__(self, size, x, y, color, alpha=255, border_width=1):
         Block.__init__(self, size, x, y, color, alpha, border_width)
         # self.rect.height += 1 # Make block 1 pixel taller downwards to allow for proper collision detection
 

@@ -9,7 +9,7 @@ from variables import colors as c
 
 
 WIDTH = 650
-HEIGHT = 660
+HEIGHT = 659
 GRID_WIDTH = 12
 GRID_HEIGHT = 22
 CELL_SIZE = 30
