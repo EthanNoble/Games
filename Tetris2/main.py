@@ -59,8 +59,7 @@ def main():
     clock = pg.time.Clock()
     time, time_steps = 0, 350 # Controls tetromino drop speed
 
-    control, player_control_speed = 0, 3 # Controls player initiated left/right movement speed
-    initially_moved = False # Used to prevent instant movement on first key press
+    control, player_control_speed = 0, 4 # Controls player initiated left/right movement speed
 
     running = True
     while running:
@@ -72,16 +71,14 @@ def main():
             if event.type == pg.QUIT:
                 running = False
             # Rotate tetromino
-            if event.type == pg.KEYDOWN and keys[pg.K_w] or keys[pg.K_UP]:
+            if event.type == pg.KEYDOWN and (keys[pg.K_w] or keys[pg.K_UP]):
                 falling_tetromino.rotate_blocks(wall_group, stable_tetrominos)
             # Player initiated instant drop
             elif INSTANT_DROP and (keys[pg.K_s] or keys[pg.K_DOWN]):
-                print('Instant drop')
                 while not falling_tetromino.update(floor_group, stable_tetrominos): pass
 
         # Player initiated gradual drop
         if not INSTANT_DROP and (event.type == pg.KEYDOWN and (keys[pg.K_s] or keys[pg.K_DOWN])):
-            print('Gradual drop')
             falling_tetromino.update(floor_group, stable_tetrominos)
         
         # Move left/right
