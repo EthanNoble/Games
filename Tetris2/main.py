@@ -40,7 +40,6 @@ def render_text(screen):
     next_text = pg.font.Font('./fonts/arcade.ttf', 80).render('NEXT', True, (255, 255, 255))
     screen.blit(next_text, (365, -15))
 
-
 def main():
     pg.init()
     screen = pg.display.set_mode((WIDTH, HEIGHT), pg.SCALED)
@@ -59,7 +58,7 @@ def main():
     falling_x = (GRID_WIDTH//2) * CELL_SIZE
     falling_y = 1 * CELL_SIZE
     falling_tetromino = Tetromino(CELL_SIZE, falling_x, falling_y)
-    next_tetromino = Tetromino(CELL_SIZE, NEXT_X, NEXT_Y, next_render=True)
+    next_tetromino = Tetromino(CELL_SIZE, NEXT_X, NEXT_Y, is_next_render=True)
     stable_tetrominos = StableTetrominoGroup()
     clock = pg.time.Clock()
     time, time_steps = 0, 350 # Controls tetromino drop speed
@@ -108,7 +107,7 @@ def main():
                     type=next_tetromino.key, # Insert next tetromino type
                     color=next_tetromino.color
                 )
-                next_tetromino = Tetromino(CELL_SIZE, NEXT_X, NEXT_Y, next_render=True) # Create new next tetromino
+                next_tetromino = Tetromino(CELL_SIZE, NEXT_X, NEXT_Y, is_next_render=True)
 
         floor_group.update()
         ceiling_group.update()

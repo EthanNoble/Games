@@ -6,27 +6,29 @@ import numpy as np
 
 
 class Tetromino: # Collection of block sprites, not a sprite itself
-    def __init__(self, block_size, x, y, type=None, color=None, alpha=255, next_render=False):
+    def __init__(self, block_size, x, y, type=None, color=None, alpha=255, is_next_render=False):
         # Random tetromino color
         tetromino_colors = list(c.values())[4:]
         self.color = choice(tetromino_colors) if color is None else color
-
-        # Create 4 blocks for tetromino
-        self.block_size = block_size
-        self.x = x
-        self.y = y
-        self.alpha = alpha
-        blocks = [FallingBlock(block_size, x, y, self.color, alpha) for _ in range(4)]
-        self.block_group = pg.sprite.RenderUpdates(blocks)
 
         # Select random tetromino type
         self.current_shape = 0 # On rotation, this will be incremented and applied modulo
         self.key = choice(list(tetrominos.keys())) if type is None else type
         # If rendering next tetromino, use second shape for I tetromino
-        shape_index = 1 if next_render and self.key == 'I' else 0
+        # since the first shape is off-centered under NEXT text
+        shape_index = 1 if is_next_render and self.key == 'I' else 0
         self.shape = tetrominos[self.key][shape_index] # Grab first unrotated tetromino
 
-
+        # Create 4 blocks for tetromino
+        self.block_size = block_size
+        # If rendering next tetromino, offset a square type
+        # by a some x amount to center it under NEXT text
+        self.x = x + (15 if is_next_render and self.key == 'O' else 0)
+        self.y = y
+        self.alpha = alpha
+        blocks = [FallingBlock(block_size, x, y, self.color, alpha) for _ in range(4)]
+        self.block_group = pg.sprite.RenderUpdates(blocks)
+        
         # self.key = 'T'
         # self.shape = tetrominos[self.key][0]
         self.__position_blocks()
@@ -64,7 +66,7 @@ class Tetromino: # Collection of block sprites, not a sprite itself
     
     def rotate_blocks(self, wall_group, stable_tetrominos): # Rotate all blocks in tetromino
         pass
-        # HARD CODED ROTATION METHOD
+        # HARD CODED ROTATION IMPLEMENTATION (It's the 21st century, no one cares about memory usage anymore)
         all_rotated_shapes = tetrominos[self.key]
         self.current_shape += 1
         self.shape = all_rotated_shapes[self.current_shape % len(all_rotated_shapes)]
@@ -77,25 +79,6 @@ class Tetromino: # Collection of block sprites, not a sprite itself
             self.current_shape -= 1
             self.shape = all_rotated_shapes[self.current_shape % len(all_rotated_shapes)] # Revert to previous shape
             self.__position_blocks()
-
-    
-        # MATRIX ROTATION METHOD
-        # relative_positions = np.array(self.shape)
-
-        # # Rotate relative positions (transpose and flip horizontally)
-        # rotated_relative_positions = relative_positions.T
-        # rotated_relative_positions = np.fliplr(rotated_relative_positions)
-        # self.shape = rotated_relative_positions.tolist()
-        # self.__position_blocks()
-
-        # # If rotated tetromino collides with wall or stable tetrominos, rotate back
-        # if (self.__collided_with_group(wall_group) or
-        #     self.__collided_with_group(stable_tetrominos)):
-        #     # Reverse what we just did
-        #     rotated_relative_positions = np.fliplr(rotated_relative_positions)
-        #     rotated_relative_positions = rotated_relative_positions.T
-        #     self.shape = rotated_relative_positions.tolist()
-        #     self.__position_blocks()
 
     def __collided_with_group(self, group, x=0, y=0):
         # Hacky way to get collision detection to work
