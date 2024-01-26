@@ -5,11 +5,10 @@ from random import choice
 import numpy as np
 
 
-
 class Tetromino: # Collection of block sprites, not a sprite itself
     def __init__(self, block_size, x, y, type=None, color=None, alpha=255, border_width=0):
         # Random tetromino color
-        tetromino_colors = [c['cyan'], c['orange'], c['light green'], c['yellow'], c['pink']]
+        tetromino_colors = list(c.values())[:8]
         self.color = choice(tetromino_colors) if color is None else color
 
         # Create 4 blocks for tetromino
@@ -21,21 +20,25 @@ class Tetromino: # Collection of block sprites, not a sprite itself
         self.block_group = pg.sprite.RenderUpdates(blocks)
 
         # Select random tetromino type
-        self.type = choice(list(tetrominos.values())) if type is None else type
-        self.__position_blocks()
+        self.current_shape = 0 # On rotation, this will be incremented and applied modulo
+        self.key = choice(list(tetrominos.keys())) if type is None else type
+        self.shape = tetrominos[self.key][0] # Grab first unrotated tetromino
+
+        # self.key = 'T'
+        # self.shape = tetrominos[self.key][0]
+        # self.__position_blocks()
     
     def __position_blocks(self): # Position blocks according to tetromino type
         relative_positions = [] # Relative positions of blocks in tetromino
-        for y in range(len(self.type)):
-            for x in range(len(self.type[y])):
-                if self.type[y][x] == 1:
+        for y in range(len(self.shape)):
+            for x in range(len(self.shape[y])):
+                if self.shape[y][x] == 1:
                     relative_positions.append((x, y))
 
         # Add relative positions to the blocks absolute x and y positions
         for i, block in enumerate(self.block_group.sprites()):
             block.rect.x = self.x
             block.rect.y = self.y
-            # print(self.x, ', ', self.y, sep='')
             block.rect.x += relative_positions[i][0] * block.size
             block.rect.y += relative_positions[i][1] * block.size
         print()
@@ -57,25 +60,39 @@ class Tetromino: # Collection of block sprites, not a sprite itself
                 block.rect.x += x * block.size
     
     def rotate_blocks(self, wall_group, stable_tetrominos): # Rotate all blocks in tetromino
-        relative_positions = np.array(self.type)
-
-        # Rotate relative positions (transpose and flip horizontally)
-        rotated_relative_positions = relative_positions.T
-        rotated_relative_positions = np.fliplr(rotated_relative_positions)
-        # rotated_relative_positions = np.fliplr(rotated_relative_positions)
-        # rotated_relative_positions = rotated_relative_positions.T
-        self.type = rotated_relative_positions.tolist()
+        pass
+        # HARD CODED ROTATION METHOD
+        all_rotated_shapes = tetrominos[self.key]
+        self.current_shape += 1
+        self.shape = all_rotated_shapes[self.current_shape % len(all_rotated_shapes)]
         self.__position_blocks()
 
         # If rotated tetromino collides with wall or stable tetrominos, rotate back
         if (self.__collided_with_group(wall_group) or
             self.__collided_with_group(stable_tetrominos)):
             # Reverse what we just did
-            rotated_relative_positions = np.fliplr(rotated_relative_positions)
-            rotated_relative_positions = rotated_relative_positions.T
-            self.type = rotated_relative_positions.tolist()
+            self.current_shape -= 1
+            self.shape = all_rotated_shapes[self.current_shape % len(all_rotated_shapes)] # Revert to previous shape
             self.__position_blocks()
 
+    
+        # MATRIX ROTATION METHOD
+        # relative_positions = np.array(self.shape)
+
+        # # Rotate relative positions (transpose and flip horizontally)
+        # rotated_relative_positions = relative_positions.T
+        # rotated_relative_positions = np.fliplr(rotated_relative_positions)
+        # self.shape = rotated_relative_positions.tolist()
+        # self.__position_blocks()
+
+        # # If rotated tetromino collides with wall or stable tetrominos, rotate back
+        # if (self.__collided_with_group(wall_group) or
+        #     self.__collided_with_group(stable_tetrominos)):
+        #     # Reverse what we just did
+        #     rotated_relative_positions = np.fliplr(rotated_relative_positions)
+        #     rotated_relative_positions = rotated_relative_positions.T
+        #     self.shape = rotated_relative_positions.tolist()
+        #     self.__position_blocks()
 
     def __collided_with_group(self, group, x=0, y=0):
         # Hacky way to get collision detection to work

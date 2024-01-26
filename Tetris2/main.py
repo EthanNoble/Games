@@ -4,8 +4,8 @@ from game_objects import Tetromino
 from variables import colors as c
 
 
-## TODO:
-
+# TODO:
+# Make rotations work like it is in the real game
 
 
 WIDTH = 650
