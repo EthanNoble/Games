@@ -8,7 +8,7 @@ import numpy as np
 class Tetromino: # Collection of block sprites, not a sprite itself
     def __init__(self, block_size, x, y, type=None, color=None, alpha=255):
         # Random tetromino color
-        tetromino_colors = list(c.values())[:8]
+        tetromino_colors = list(c.values())[4:]
         self.color = choice(tetromino_colors) if color is None else color
 
         # Create 4 blocks for tetromino
@@ -151,15 +151,7 @@ class StableTetrominoGroup:
             if (block.rect.y < y):
                 block.update()
 
-    def check_lines(self):
-        grid_lines = []
-        # Generate grid coordinates
-        for y in range(30, 601, 30):
-            line = []
-            for x in range(30, 301, 30):
-                line.append((x, y))
-            grid_lines.append(line)
-        
+    def check_lines(self):        
         # Check for completed lines
         filled_blocks = 0
         for y in range(30, 601, 30): # Loop through each block line by line

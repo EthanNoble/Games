@@ -5,17 +5,16 @@ from game_objects import Tetromino
 from variables import colors as c
 
 
-# TODO:
-# Make rotations work like it is in the real game
-
-
 WIDTH = 650
 HEIGHT = 659
 GRID_WIDTH = 12
 GRID_HEIGHT = 22
 CELL_SIZE = 30
+INSTANT_DROP = False
 
-INSTANT_DROP = True
+# Next tetromino shape position
+NEXT_X = 400
+NEXT_Y = 50
 
 
 def borders():
@@ -37,6 +36,10 @@ def borders():
 
     return floor_border, ceiling_border, wall_border
 
+def render_text(screen):
+    next_text = pg.font.Font('./fonts/arcade.ttf', 80).render('NEXT', True, (255, 255, 255))
+    screen.blit(next_text, (365, -15))
+
 
 def main():
     pg.init()
@@ -51,15 +54,15 @@ def main():
     screen.blit(background, (0, 0))
     pg.display.flip()
 
-    # Game objects including sprites and groups
+    # Game objects including sprites, groups, and text
     floor_group, ceiling_group, wall_group = borders()
     falling_x = (GRID_WIDTH//2) * CELL_SIZE
     falling_y = 1 * CELL_SIZE
     falling_tetromino = Tetromino(CELL_SIZE, falling_x, falling_y)
+    next_tetromino = Tetromino(CELL_SIZE, NEXT_X, NEXT_Y)
     stable_tetrominos = StableTetrominoGroup()
     clock = pg.time.Clock()
     time, time_steps = 0, 350 # Controls tetromino drop speed
-
     control, player_control_speed = 0, 4 # Controls player initiated left/right movement speed
 
     running = True
@@ -98,7 +101,14 @@ def main():
                 # and create new falling tetromino
                 stable_tetrominos.add(falling_tetromino)
                 stable_tetrominos.check_lines()
-                falling_tetromino = Tetromino(CELL_SIZE, falling_x, falling_y)
+                falling_tetromino = Tetromino(
+                    CELL_SIZE,
+                    falling_x,
+                    falling_y,
+                    type=next_tetromino.key, # Insert next tetromino type
+                    color=next_tetromino.color
+                )
+                next_tetromino = Tetromino(CELL_SIZE, NEXT_X, NEXT_Y) # Create new next tetromino
 
         floor_group.update()
         ceiling_group.update()
@@ -109,7 +119,9 @@ def main():
         ceiling_group.draw(screen)
         wall_group.draw(screen)
         falling_tetromino.block_group.draw(screen)
+        next_tetromino.block_group.draw(screen)
         stable_tetrominos.tetromino_group.draw(screen)
+        render_text(screen)
 
         pg.display.flip()
 
